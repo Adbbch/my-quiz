@@ -54,6 +54,11 @@ label{display:block;font-size:.72rem;font-weight:500;letter-spacing:.06em;color:
 .prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:99px;margin-bottom:1.75rem;overflow:hidden}
 .prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4d8d,#9b5cf6);transition:width .4s ease}
 .who{display:inline-block;background:rgba(155,92,246,.2);color:#c4a8ff;border-radius:99px;padding:.3rem .9rem;font-size:.8rem;font-weight:500;margin-bottom:1rem}
+.cat-tag{display:inline-block;border-radius:99px;padding:.25rem .8rem;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.75rem;margin-left:.4rem}
+.cat-relation{background:rgba(255,77,141,.15);color:#ffaacc}
+.cat-amitie{background:rgba(77,158,255,.15);color:#a0c8ff}
+.cat-pouvoir{background:rgba(155,92,246,.15);color:#c4a8ff}
+.cat-spicy{background:rgba(255,159,77,.15);color:#ffc888}
 .q-text{font-family:'Syne',sans-serif;font-size:1.12rem;font-weight:700;margin-bottom:1.5rem;line-height:1.4}
 .opts{display:flex;flex-direction:column;gap:.75rem}
 .opt{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:.85rem 1.1rem;
@@ -147,7 +152,7 @@ tbody tr:last-child td{border-bottom:none}
     <div class="card">
       <span class="hero">💘</span>
       <h1>Êtes-vous compatibles ?</h1>
-      <p class="subtitle">10 questions pour découvrir votre vrai score. Chaque personne répond de son côté !</p>
+      <p class="subtitle">10 questions piochées au hasard parmi 50 pour découvrir votre vrai score. Chaque personne répond de son côté !</p>
       <button class="btn" onclick="showPage('pg-create')" style="margin-bottom:.75rem">✨ Créer une session</button>
       <button class="btn-sec" onclick="showPage('pg-join')">🔗 Rejoindre une session</button>
       <button class="btn-sec" style="font-size:.78rem;color:var(--muted)" onclick="showPage('pg-admin-login')">⚙️ Admin</button>
@@ -224,6 +229,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="prog-bar"><div class="prog-fill" id="q-prog" style="width:0%"></div></div>
       <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.4rem" id="q-label">Question 1 / 10</div>
       <div class="who" id="q-who">👤</div>
+      <span class="cat-tag" id="q-cat"></span>
       <div class="q-text" id="q-text"></div>
       <div class="opts" id="q-opts"></div>
       <div class="divider"></div>
@@ -318,19 +324,78 @@ tbody tr:last-child td{border-bottom:none}
 <script>
 const ADMIN_ID   = "admin@compatibilitycheck.fr";
 const ADMIN_PASS = "Admin2024!";
-const QS = [
-  {t:"Comment tu préfères passer le week-end ?",o:["Sortir et voir du monde","Rester à la maison","Faire du sport","Quelque chose de spontané"]},
-  {t:"Dans une relation, ce qui compte le plus ?",o:["La communication","L'humour","La confiance","Le physique"]},
-  {t:"Ton mode de communication préféré ?",o:["Textos / DM","Appels vocaux","En face à face","Vocaux WhatsApp"]},
-  {t:"Si vous vous disputez, tu fais quoi ?",o:["Je dis tout direct","Je prends du recul","J'attends les excuses","Comme si rien"]},
-  {t:"Ta date idéale ?",o:["Ciné + restau","Soirée avec amis","Aventure / nature","Cocooning"]},
-  {t:"Ton love language ?",o:["Mots & compliments","Cadeaux & surprises","Moments ensemble","Contacts physiques"]},
-  {t:"Ton plus grand défaut ?",o:["Trop jaloux(se)","Trop distant(e)","Je m'énerve vite","Trop dans ma tête"]},
-  {t:"Ta vision du futur en couple ?",o:["Vivre ensemble vite","Prendre le temps","Voir comment ça évolue","J'y pense pas encore"]},
-  {t:"Niveau jalousie tu es…",o:["Très jaloux(se)","Un peu jaloux(se)","Pas jaloux(se)","Ça dépend"]},
-  {t:"Tu préfères recevoir…",o:["Message romantique","Surprise imprévue","Moment rien que vous","Compliment sincère"]},
+
+/* ===================== BANQUE DE 50 QUESTIONS ===================== */
+/* cat: relation | amitie | pouvoir | spicy */
+const QS_POOL = [
+  // --- RELATION (couple, communication, valeurs) ---
+  {cat:"relation",t:"Comment tu préfères passer le week-end en couple ?",o:["Sortir et voir du monde","Rester à la maison","Faire du sport ensemble","Quelque chose de spontané"]},
+  {cat:"relation",t:"Dans une relation, ce qui compte le plus pour toi ?",o:["La communication","L'humour","La confiance","Le physique"]},
+  {cat:"relation",t:"Ton mode de communication préféré ?",o:["Textos / DM","Appels vocaux","En face à face","Vocaux WhatsApp"]},
+  {cat:"relation",t:"Si vous vous disputez, tu fais quoi ?",o:["J'en parle tout de suite","Je prends du recul","J'attends les excuses","Je fais comme si rien"]},
+  {cat:"relation",t:"Ta date idéale ?",o:["Ciné + restau","Soirée avec amis","Aventure / nature","Cocooning à la maison"]},
+  {cat:"relation",t:"Ton love language principal ?",o:["Mots & compliments","Cadeaux & surprises","Moments de qualité","Contacts physiques"]},
+  {cat:"relation",t:"Ton plus grand défaut en couple ?",o:["Trop jaloux(se)","Trop distant(e)","Je m'énerve vite","Trop dans ma tête"]},
+  {cat:"relation",t:"Ta vision du futur en couple ?",o:["Vivre ensemble vite","Prendre le temps","Voir comment ça évolue","J'y pense pas encore"]},
+  {cat:"relation",t:"Niveau jalousie, tu es plutôt…",o:["Très jaloux(se)","Un peu jaloux(se)","Pas jaloux(se)","Ça dépend des situations"]},
+  {cat:"relation",t:"Tu préfères recevoir…",o:["Un message romantique","Une surprise imprévue","Un moment rien que vous deux","Un compliment sincère"]},
+  {cat:"relation",t:"Comment tu gères les réseaux sociaux en couple ?",o:["Tout est public, fièrement","Discret, je garde ça privé","Je poste parfois, sans trop","On en parle ensemble avant"]},
+  {cat:"relation",t:"Ce qui te ferait le plus douter en couple ?",o:["Le manque de communication","Le manque de temps ensemble","Une trahison de confiance","La routine qui s'installe"]},
+  {cat:"relation",t:"Tu préfères un(e) partenaire qui…",o:["Te challenge intellectuellement","Te fait rire H24","Te soutient sans relâche","T'apporte de l'aventure"]},
+  {cat:"relation",t:"Niveau argent en couple, tu préfères…",o:["Tout en commun","Chacun son compte","50/50 sur les dépenses","Ça dépend des revenus"]},
+
+  // --- AMITIÉ / PRÉFÉRENCES ---
+  {cat:"amitie",t:"Tu préfères avoir…",o:["Un cercle d'amis large","Quelques amis très proches","Un(e) meilleur(e) ami(e) unique","Pas besoin d'un grand cercle"]},
+  {cat:"amitie",t:"Pour toi un(e) bon(ne) ami(e) c'est avant tout…",o:["Quelqu'un d'honnête, même si ça fait mal","Quelqu'un toujours disponible","Quelqu'un qui te fait rire","Quelqu'un qui ne te juge jamais"]},
+  {cat:"amitie",t:"Tu préfères passer une soirée…",o:["En grande soirée bruyante","Petit groupe d'amis proches","Tête à tête avec un(e) ami(e)","Seul(e), tranquille"]},
+  {cat:"amitie",t:"Si ton/ta meilleur(e) ami(e) sort avec quelqu'un que tu n'aimes pas, tu…",o:["Lui dis franchement direct","Attends qu'il/elle s'en rende compte","Lui dis avec des pincettes","Garde ça pour toi"]},
+  {cat:"amitie",t:"Tu préfères un groupe d'amis…",o:["Qui sort tout le temps","Qui se retrouve pour des soirées jeux/films","Qui voyage ensemble","Qui se voit rarement mais c'est fort"]},
+  {cat:"amitie",t:"Ton rôle dans un groupe d'amis ?",o:["Celui/celle qui organise tout","Le/la confident(e)","Le/la fêtard(e)","Celui/celle qui calme le jeu"]},
+  {cat:"amitie",t:"Tu préfères des ami(e)s qui te ressemblent ou qui sont différent(e)s de toi ?",o:["Qui me ressemblent beaucoup","Très différent(e)s de moi","Un mélange des deux","Ça dépend de la personne"]},
+  {cat:"amitie",t:"En cas de coup dur, tu préfères qu'un(e) ami(e)…",o:["T'écoute sans rien dire","Te donne des solutions concrètes","Te change les idées direct","Soit juste présent(e) physiquement"]},
+  {cat:"amitie",t:"Tu préfères les amitiés…",o:["Récentes mais intenses","Anciennes et stables","Un peu des deux","Peu importe la durée"]},
+  {cat:"amitie",t:"Si tu devais choisir, tu préfères…",o:["Beaucoup de connaissances","Peu d'amis mais fidèles","Des amis dans chaque domaine de ta vie","Un seul cercle pour tout"]},
+  {cat:"amitie",t:"Entre les deux, tu préfères…",o:["Donner des conseils","Recevoir des conseils","Juste écouter","Éviter le sujet"]},
+  {cat:"amitie",t:"Tu préfères un ami qui te dit la vérité ou qui te protège ?",o:["La vérité, toujours","Me protéger avant tout","Un mélange selon le moment","Dépend du sujet"]},
+
+  // --- HYPOTHÉTIQUE / POUVOIRS ---
+  {cat:"pouvoir",t:"Si tu avais un super-pouvoir, tu choisirais…",o:["Lire dans les pensées","Voyager dans le temps","Être invisible","Voler"]},
+  {cat:"pouvoir",t:"Si tu pouvais vivre n'importe où dans le monde, tu choisirais…",o:["Une grande ville animée","Une île tranquille","La montagne","Ta ville actuelle"]},
+  {cat:"pouvoir",t:"Si tu avais le pouvoir de tout savoir sur une personne, tu l'utiliserais pour…",o:["Savoir si on te ment","Savoir ce qu'on pense vraiment de toi","Juste par curiosité","Tu ne l'utiliserais jamais"]},
+  {cat:"pouvoir",t:"Si tu pouvais recommencer ta vie, tu changerais…",o:["Mes études/carrière","Une relation passée","Rien, j'assume tout","Mes amitiés"]},
+  {cat:"pouvoir",t:"Si tu avais 24h pour faire tout ce que tu veux sans conséquences, tu ferais quoi en priorité ?",o:["Voyager loin","Dire ce que tu penses vraiment à quelqu'un","Faire un truc fou/extrême","Te reposer complètement"]},
+  {cat:"pouvoir",t:"Si tu pouvais avoir un don artistique instantané, tu choisirais…",o:["Chanter parfaitement","Danser comme un pro","Peindre/dessiner comme un artiste","Écrire des best-sellers"]},
+  {cat:"pouvoir",t:"Si tu pouvais arrêter le temps, tu l'utiliserais pour…",o:["Profiter d'un moment plus longtemps","Réfléchir avant de répondre","Observer les gens autour de toi","Te reposer un peu plus"]},
+  {cat:"pouvoir",t:"Si tu devais choisir un pouvoir pour ton/ta partenaire, ce serait…",o:["Lire tes pensées pour te comprendre","Te téléporter pour vous voir plus souvent","Guérir instantanément","Prédire l'avenir ensemble"]},
+  {cat:"pouvoir",t:"Si tu pouvais effacer un souvenir, tu choisirais…",o:["Une rupture douloureuse","Une erreur que tu regrettes","Une humiliation publique","Tu n'effacerais rien"]},
+  {cat:"pouvoir",t:"Si tu avais un pouvoir illimité mais un seul jour pour l'utiliser, tu ferais quoi ?",o:["Aider un maximum de gens","Réaliser un rêve personnel","Résoudre un problème dans ta vie","Profiter égoïstement, juste pour toi"]},
+
+  // --- SPICY (suggestif, soft, pas explicite) ---
+  {cat:"spicy",t:"Ce qui t'attire le plus chez quelqu'un au premier regard ?",o:["Le sourire","Le regard","Le style vestimentaire","La confiance en soi"]},
+  {cat:"spicy",t:"Ton style de flirt préféré ?",o:["Taquiner avec humour","Compliments directs","Regards qui en disent long","Messages mystérieux"]},
+  {cat:"spicy",t:"Ce qui te fait le plus craquer ?",o:["Une bonne odeur de parfum","Une voix grave/douce","Des mains soignées","Une façon de rire"]},
+  {cat:"spicy",t:"Tu préfères les compliments…",o:["Sur ton physique","Sur ta personnalité","Sur ton intelligence","Sur ton style"]},
+  {cat:"spicy",t:"Ta tenue qui te donne le plus confiance ?",o:["Sportswear décontracté","Tenue chic et classe","Style streetwear","Quelque chose de simple et confortable"]},
+  {cat:"spicy",t:"Tu préfères un câlin ou un bisou surprise ?",o:["Un câlin qui dure","Un bisou surprise","Tenir la main","Un regard intense suffit"]},
+  {cat:"spicy",t:"Ce que tu trouves le plus sexy chez quelqu'un ?",o:["La confiance en soi","L'humour","L'intelligence","Le charisme naturel"]},
+  {cat:"spicy",t:"Tu préfères une ambiance romantique…",o:["Dîner aux chandelles","Soirée cinéma sous une couverture","Balade nocturne","Musique douce et lumière tamisée"]},
+  {cat:"spicy",t:"Quelle marque d'attention te fait le plus fondre ?",o:["Un message inattendu en pleine journée","Un petit geste surprise","Être pris(e) dans les bras sans prévenir","Un compliment murmuré à l'oreille"]},
+  {cat:"spicy",t:"Tu préfères une relation avec…",o:["Beaucoup de complicité et de jeux","Beaucoup de tendresse","Beaucoup de passion","Un bon équilibre des trois"]},
 ];
-let S={code:"",person:0,myName:"",partnerName:"",qIdx:0,answers:[],selected:null};
+/* ===================== FIN BANQUE DE QUESTIONS ===================== */
+
+const CAT_LABEL = {relation:"💜 Couple",amitie:"🤝 Amitié",pouvoir:"✨ Et si...",spicy:"🌶️ Spicy"};
+
+function pickRandomQuestions(n){
+  const idxs = QS_POOL.map((_,i)=>i);
+  for(let i=idxs.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idxs[i],idxs[j]]=[idxs[j],idxs[i]];
+  }
+  return idxs.slice(0,n);
+}
+
+let S={code:"",person:0,myName:"",partnerName:"",qIdx:0,answers:[],selected:null,quiz:[]};
 let unsubWait=null;
 
 function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -355,8 +420,9 @@ function doCreate(){
   const btn=document.getElementById('c-btn');
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Génération...';
   if(!window._fb){toast('⏳ Firebase chargement...');btn.disabled=false;btn.textContent='Générer le code 🎲';return;}
-  window._fb.createSession(n1,n2,
-    (code)=>{S.code=code;S.person=1;S.myName=n1;S.partnerName=n2;document.getElementById('sh-code').textContent=code;document.getElementById('sh-name').textContent=n2;btn.disabled=false;btn.textContent='Générer le code 🎲';showPage('pg-share');},
+  const questionIds = pickRandomQuestions(10);
+  window._fb.createSession(n1,n2,questionIds,
+    (code)=>{S.code=code;S.person=1;S.myName=n1;S.partnerName=n2;S.quiz=questionIds.map(i=>QS_POOL[i]);document.getElementById('sh-code').textContent=code;document.getElementById('sh-name').textContent=n2;btn.disabled=false;btn.textContent='Générer le code 🎲';showPage('pg-share');},
     (err)=>{btn.disabled=false;btn.textContent='Générer le code 🎲';toast('❌ Erreur: '+err);}
   );
 }
@@ -378,6 +444,8 @@ function doJoin(){
       if(!session){msgEl.className='msg msg-err';msgEl.textContent='❌ Code "'+code+'" introuvable. Vérifie les 4 caractères.';return;}
       msgEl.className='msg msg-ok';msgEl.textContent='✅ Code validé ! Lancement...';
       S.code=code;S.person=2;S.myName=session.name2;S.partnerName=session.name1;
+      const ids = toArr(session.questionIds) || pickRandomQuestions(10);
+      S.quiz = ids.map(i=>QS_POOL[i]);
       setTimeout(()=>launchQuiz(),700);
     },
     (err)=>{btn.disabled=false;btn.textContent='Rejoindre 💘';msgEl.className='msg msg-err';msgEl.textContent='⚠️ Erreur Firebase: '+err;}
@@ -387,10 +455,13 @@ function doJoin(){
 // QUIZ
 function launchQuiz(){S.qIdx=0;S.answers=[];S.selected=null;showPage('pg-quiz');renderQ();}
 function renderQ(){
-  const q=QS[S.qIdx];
-  document.getElementById('q-prog').style.width=(S.qIdx/QS.length*100)+'%';
-  document.getElementById('q-label').textContent='Question '+(S.qIdx+1)+' / '+QS.length;
+  const q=S.quiz[S.qIdx];
+  document.getElementById('q-prog').style.width=(S.qIdx/S.quiz.length*100)+'%';
+  document.getElementById('q-label').textContent='Question '+(S.qIdx+1)+' / '+S.quiz.length;
   document.getElementById('q-who').textContent='👤 '+S.myName;
+  const catEl=document.getElementById('q-cat');
+  catEl.className='cat-tag cat-'+q.cat;
+  catEl.textContent=CAT_LABEL[q.cat]||'';
   document.getElementById('q-text').textContent=q.t;
   const c=document.getElementById('q-opts');c.innerHTML='';S.selected=null;
   document.getElementById('q-next').style.display='none';
@@ -404,12 +475,12 @@ function renderQ(){
 function nextQ(){
   if(S.selected===null)return;
   S.answers.push(S.selected);S.qIdx++;
-  if(S.qIdx<QS.length){renderQ();return;}
+  if(S.qIdx<S.quiz.length){renderQ();return;}
   submitAnswers();
 }
 function submitAnswers(){
   const field=S.person===1?'answers1':'answers2';
-  const waitFor=S.person===1?S.partnerName:S.partnerName;
+  const waitFor=S.partnerName;
   window._fb.saveAnswers(S.code,field,S.answers,
     ()=>{
       window._fb.getSession(S.code,
@@ -439,19 +510,22 @@ function toArr(v){if(!v)return null;if(Array.isArray(v))return v;return Object.v
 function showResult(session){
   const a1=toArr(session.answers1),a2=toArr(session.answers2);
   if(!a1||!a2){toast('Erreur: réponses manquantes');return;}
+  const quizIds = toArr(session.questionIds);
+  const quiz = quizIds ? quizIds.map(i=>QS_POOL[i]) : S.quiz;
   let matches=0;
-  for(let i=0;i<10;i++)if(a1[i]===a2[i])matches++;
-  const score=Math.round((matches/10)*100);
+  for(let i=0;i<quiz.length;i++)if(a1[i]===a2[i])matches++;
+  const score=Math.round((matches/quiz.length)*100);
   window._fb&&window._fb.setScore(S.code,score);
   let emoji,title,desc;
   if(score>=80){emoji="🔥";title="Soulmates !";desc="Vous êtes faits l'un pour l'autre ! Vos réponses sont très similaires.";}
   else if(score>=60){emoji="💜";title="Super compatibles !";desc="Beaucoup en commun, quelques différences qui rendent la relation intéressante !";}
   else if(score>=40){emoji="🌱";title="À construire ensemble";desc="Vous êtes différents sur plusieurs points, mais les opposés s'attirent !";}
   else{emoji="⚡";title="Duo de choc !";desc="Très différents ! Mais une relation c'est aussi apprendre de l'autre.";}
-  const rows=QS.map((q,i)=>{
+  const rows=quiz.map((q,i)=>{
     const m=a1[i]===a2[i];
     return '<div class="cmp-row'+(m?' match':'')+'">'
       +'<span class="cmp-tag '+(m?'yes':'no')+'">'+(m?'✓ Identique':'✗ Différent')+'</span>'
+      +'<span class="cat-tag cat-'+q.cat+'" style="margin-bottom:.4rem">'+(CAT_LABEL[q.cat]||'')+'</span>'
       +'<div class="cmp-q">'+q.t+'</div>'
       +'<div class="cmp-ans">'
       +'<div class="ans-p1"><span class="ans-name n1">'+session.name1+'</span>'+q.o[a1[i]]+'</div>'
@@ -562,7 +636,7 @@ window._fb = {
     } catch(e){ console.warn('saveLogin error:',e); }
   },
 
-  createSession: async (n1, n2, onOk, onErr) => {
+  createSession: async (n1, n2, questionIds, onOk, onErr) => {
     const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code, tries=0;
     while(tries<30){
@@ -571,7 +645,7 @@ window._fb = {
       tries++;
     }
     try {
-      await set(ref(db,'sessions/'+code),{name1:n1,name2:n2,answers1:null,answers2:null,score:null,createdAt:Date.now(),completedAt:null});
+      await set(ref(db,'sessions/'+code),{name1:n1,name2:n2,questionIds,answers1:null,answers2:null,score:null,createdAt:Date.now(),completedAt:null});
       onOk(code);
     } catch(e){ onErr(e.message); }
   },
